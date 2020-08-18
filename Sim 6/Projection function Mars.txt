@@ -1,0 +1,59 @@
+function [tau,w_hat_dot,v_hat_dot,f_hat]= controller1(k,proj1, proj2, kn,alpha,gamma1,gamma2,ks,qd,qdDot,qdDotDot,e,eDot,w_hat,v_hat)
+%#codegen
+
+q = qd-e; % Check
+qDot = qdDot-eDot; % Check
+r = eDot+alpha*e; % Check
+
+qd_vec = [1 qd' qdDot' qdDotDot']'; % (7x1)
+vq = v_hat'*qd_vec; % (5x7)(7x1) = (5x1)
+
+sigma = exp(-(vq).^2./2); % (5x1)
+
+sigma_vec = [1 sigma']';   % (6x1)
+sigma_prime_vec = [1 1 1 1 1; exp(-(vq.^2)./2)*vq'];     %; sigma_prime'; sigma_prime'; sigma_prime'; sigma_prime'; sigma_prime']; % (6x5)
+
+tau = ks*sign(r)+k*r + kn*r + e + w_hat'*sigma_vec;  % (2x6)(6x1)=(2x1)
+
+%v_hat_dot projection function 
+
+
+w_hat_dot = gamma1*sigma_vec*r'; %(6x1)(1x2)=(6x2)
+v_hat_dot = gamma2*qd_vec*r'*w_hat'*sigma_prime_vec; %(7x1)(1x2)(2x6)(6x5)=(7x5)
+
+
+%vHat projection
+[v_hat_dot] = projectionFunction(v_hat_dot,proj1,-proj1);
+
+%w_hat_dot projection function
+[w_hat_dot] = projectionFunction(w_hat_dot,proj2,-proj2);
+
+
+f_hat = w_hat'*sigma_vec; %(2x6)(6x1)=(2x1)
+
+
+
+%projection function definition
+function [beta] = projectionFunction(alpha, upperlim, lowerlim)
+ 
+[i,j] = size(alpha);
+ 
+beta = zeros(i,j);
+ 
+for n = 1:i
+    for m = 1:j
+        if alpha(n,m) > upperlim
+            beta(n,m) = upperlim;
+        elseif alpha(n,m) < lowerlim
+            beta(n,m) = lowerlim;
+        else 
+            beta(n,m) = alpha(n,m);
+        end
+ 
+    end
+end
+ 
+end
+
+end
+
