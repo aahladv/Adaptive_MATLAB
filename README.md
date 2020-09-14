@@ -1,7 +1,7 @@
 # Adaptive_MATLAB
 This repo contains my design and simulations of 2 link rigid robot manipulator controller designs using Adaptive, RISE, CL, ICL, RLC, NN controllers 
 
-## **AIM**: This project aims to design controllers for a 6-link robot manipulator
+## **AIM**: This project aims to design controllers for a 2-link robot manipulator
 
 There are 6 simulations done with 6 controllers, dynamics of the robot are added in a separate folder
 
